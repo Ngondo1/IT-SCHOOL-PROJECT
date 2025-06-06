@@ -72,7 +72,7 @@ class Ratings(db.Model):
     comment = db.Column(db.Text)
     timestamp = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
 
-# Optional Employers table (if employers have specific details)
+
 class Employers(db.Model):
     __tablename__ = 'employers'
     employerID = db.Column(db.Integer, db.ForeignKey('users.userID'), primary_key=True)
