@@ -1,0 +1,28 @@
+# Use an official lightweight Python image
+FROM python:3.11-slim
+
+# Set environment variables to prevent .pyc files and buffer issues
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Set working directory in the container
+WORKDIR /app
+
+# Copy requirements file first (leverages Docker layer caching)
+COPY requirements.txt .
+
+# Install dependencies
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
+
+# Copy the rest of your backend source code
+COPY . .
+
+# Set Flask environment variable (optional if you define it in docker-compose)
+ENV FLASK_APP=app.py
+
+# Expose the Flask default port
+EXPOSE 5000
+
+# Default command to run the app (bind to 0.0.0.0 to be accessible in Docker)
+CMD ["flask", "run", "--host=0.0.0.0"]

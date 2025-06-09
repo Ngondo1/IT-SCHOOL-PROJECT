@@ -2,49 +2,62 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
-import os
 from dotenv import load_dotenv
+import os
 
-#loading environ variables from .env file
+# Load environment variables from .env
 load_dotenv(dotenv_path='.env')
-print("environment variables loaded successfully")
+print("✅ Environment variables loaded successfully")
 
+# Create Flask app
 app = Flask(__name__)
 CORS(app)
 
-# setting secret key for session management
-app.secret_key = os.getenv('SECRET_KEY', 'ggj')
+# Secret key for sessions
+app.secret_key = os.getenv('SECRET_KEY', '3h@92Jfks8!we91Llk8^d3sd09')
 
-
-# Fetching the necessary environment variables from the datbase  connection
+# Get MySQL database credentials from .env
 db_username = os.getenv('MYSQL_USER')
-db_password = os.getenv('MYSQL_PASSWORD', 'kimemia04')
-db_host = os.getenv('MYSQL_HOST')
-db_port = os.getenv('MYSQL_PORT')
+db_password = os.getenv('MYSQL_PASSWORD', 'root')
+db_host = os.getenv('MYSQL_HOST', 'localhost')
+db_port = os.getenv('MYSQL_PORT', '3306')
 db_name = os.getenv('MYSQL_DATABASE')
 
-#output values of the db connection 
+# Warn if something is missing
 if not all([db_username, db_password, db_host, db_port, db_name]):
-    print("One or more environment variables are missing.")
+    print("⚠️ One or more DB environment variables are missing.")
 else:
-    print(f"DB Username: {db_username}")
-    print(f"DB Password: {db_password}")
-    print(f"DB Host: {db_host}")
-    print(f"DB Port: {db_port}")
-    print(f"DB Name: {db_name}")
-    
-# Configure SQLAchemy database URI
+    print(f"🔗 Connecting to MySQL: {db_username}@{db_host}:{db_port}/{db_name}")
+
+# Configure SQLAlchemy for MySQL
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{db_username}:{db_password}@{db_host}:{db_port}/{db_name}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Import and initialize the database
+# Initialise DB and Migrations
 from models import db
 db.init_app(app)
+migrate = Migrate(app, db)
 
-# Import and register the Blueprint
-from routes import routes
-app.register_blueprint(routes)
+# Register route Blueprints
+from routes.job import job_bp
+from routes.application import application_bp
+from routes.matches import match_bp
+from routes.reviews import review_bp
+from routes.employees import employee_bp
+from routes.employers import employer_bp
 
-# Run the flask App
+app.register_blueprint(job_bp)
+app.register_blueprint(application_bp)
+app.register_blueprint(match_bp)
+app.register_blueprint(review_bp)
+app.register_blueprint(employee_bp)
+app.register_blueprint(employer_bp)
+
+# Optional test route
+@app.route('/')
+def home():
+    return {'message': '✅ Blue-Collar Job Matching API is running'}
+
+# Run the app
 if __name__ == '__main__':
     app.run(debug=True)

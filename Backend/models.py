@@ -68,15 +68,31 @@ class Ratings(db.Model):
     ratingID = db.Column(db.Integer, primary_key=True, autoincrement=True)
     raterID = db.Column(db.Integer, db.ForeignKey('users.userID'))
     rateeID = db.Column(db.Integer, db.ForeignKey('users.userID'))
-    rating = db.Column(db.Integer)  # 1 to 5
+    rating = db.Column(db.Integer)  # scale of 1–5
     comment = db.Column(db.Text)
     timestamp = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
-
-
 class Employers(db.Model):
     __tablename__ = 'employers'
     employerID = db.Column(db.Integer, db.ForeignKey('users.userID'), primary_key=True)
-    companyName = db.Column(db.String(150))
-    businessType = db.Column(db.String(100))
-    registrationNumber = db.Column(db.String(100))
+    companyName = db.Column(db.String(150), nullable=False)
+    businessTypeID = db.Column(db.Integer, db.ForeignKey('business_types.id'))
+    registrationNumber = db.Column(db.String(100), unique=True)
+    companyEmail = db.Column(db.String(150), unique=True)
+    companyPhone = db.Column(db.String(30))
+    companyLocation = db.Column(db.String(200))
+    logoUrl = db.Column(db.String(255))
     verified = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
+    updated_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
+
+class Employees(db.Model):
+    __tablename__ = 'employees'
+    employeeID = db.Column(db.Integer, db.ForeignKey('users.userID'), primary_key=True)
+    skills = db.Column(db.Text)
+    yearsOfExperience = db.Column(db.Integer)
+    expectedSalary = db.Column(db.String(50))
+    availability = db.Column(db.Enum('immediately', '1 week', '1 month'))
+    preferredJobTypes = db.Column(db.String(150))  # e.g. "full-time, part-time"
+    portfolioUrl = db.Column(db.String(255))  # Optional
+    created_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp())
+    updated_at = db.Column(db.TIMESTAMP, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
